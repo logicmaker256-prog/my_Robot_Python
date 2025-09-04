@@ -1,1 +1,2 @@
 # my_Robot_Python
+ChatGPTを使って
