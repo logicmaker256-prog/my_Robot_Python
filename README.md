@@ -1,2 +1,2 @@
 # my_Robot_Python
-ChatGPTを使って
+ChatGPTを使って作ったros２用のPythonコード
