@@ -1,0 +1,41 @@
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+
+class Mixer(Node):
+    def __init__(self):
+        super().__init__('mixer')
+        self.sub_keyboard = self.create_subscription(
+            Twist, '/keyboard_vel', self.keyboard_callback, 10)
+        self.sub_circle = self.create_subscription(
+            Twist, '/circle_vel', self.circle_callback, 10)
+
+        self.pub_cmd = self.create_publisher(Twist, '/turtle1/cmd_vel', 10)
+
+        self.latest_keyboard = Twist()
+        self.latest_circle = Twist()
+
+        # 10Hz で合成して publish
+        self.timer = self.create_timer(0.1, self.publish_mixed)
+
+    def keyboard_callback(self, msg):
+        self.latest_keyboard = msg
+
+    def circle_callback(self, msg):
+        self.latest_circle = msg
+
+    def publish_mixed(self):
+        msg = Twist()
+        msg.linear.x = self.latest_keyboard.linear.x + self.latest_circle.linear.x
+        msg.angular.z = self.latest_keyboard.angular.z + self.latest_circle.angular.z
+        self.pub_cmd.publish(msg)
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = Mixer()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
